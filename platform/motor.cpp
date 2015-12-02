@@ -35,7 +35,7 @@ Motor::~Motor()
 {
 }
 
-bool Motor::connect(motorport_t port)
+bool Motor::connect(enum MotorPort port)
 {
 	DIR *dir = opendir(motorRootPath);
 	struct dirent *dent;
@@ -76,4 +76,14 @@ success:
 /* If these are modified, then you should also modify the motorport_t enum in
  * motor.h */
 const char Motor::portNames[][5] = { "outA", "outB", "outC", "outD" };
-const char Motor::motorRootPath[] = "/sys/class/tacho-motor";
+const char Motor::motorRootPath[] = MOTOR_ROOTPATH;
+const char Motor::commandNames[][CMDSTR_MAXLEN] = { CMDSTR_RUN_FOREVER,
+						    CMDSTR_RUN_TO_ABS_POS,
+						    CMDSTR_RUN_TO_REL_POS,
+						    CMDSTR_RUN_TIMED,
+						    CMDSTR_RUN_DIRECT,
+						    CMDSTR_STOP,
+						    CMDSTR_RESET };
+const char stopCommandNames[][STOPSTR_MAXLEN] = { STOPSTR_COAST,
+						  STOPSTR_BRAKE,
+						  STOPSTR_HOLD };

@@ -44,3 +44,54 @@ root@ev3desk:/sys/class/tacho-motor# cat motor1/port_name
 outB
 root@ev3desk:/sys/class/tacho-motor# cat motor2/port_name 
 outA
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/count_per_rot
+360
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/commands
+run-forever run-to-abs-pos run-to-rel-pos run-timed run-direct stop reset
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/stop_commands
+coast brake hold
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/stop_command
+coast
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/speed_regulation
+off
+
+root@ev3desk:/sys/class/tacho-motor# echo on > motor0/speed_regulation
+root@ev3desk:/sys/class/tacho-motor# cat motor0/speed_regulation
+on
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/position
+0
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/ramp_down_sp
+0
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/ramp_up_sp
+0
+
+root@ev3desk:/sys/class/tacho-motor# cat motor0/speed_sp
+0
+
+root@ev3desk:/sys/class/tacho-motor# echo 100 > motor0/speed_sp
+root@ev3desk:/sys/class/tacho-motor# echo run-forever > motor0/command
+### motor runs here
+root@ev3desk:/sys/class/tacho-motor# echo stop  > motor0/command
+### now it's stopped again
+
+
+oot@ev3desk:/sys/class/tacho-motor# cat motor0/position
+2331
+root@ev3desk:/sys/class/tacho-motor# cat motor0/position_sp
+0
+root@ev3desk:/sys/class/tacho-motor# echo 3600 >  motor0/position_sp
+root@ev3desk:/sys/class/tacho-motor# echo run-to-abs-pos > motor0/command
+#### here it was running for a while
+root@ev3desk:/sys/class/tacho-motor# cat motor0/position
+3610
+root@ev3desk:/sys/class/tacho-motor# cat motor0/position_sp
+3600
+#### apparently an overshot of 10 degrees
