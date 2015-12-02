@@ -16,36 +16,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOTOR_H
-#define MOTOR_H
+#ifndef FILEOP_H
+#define FILEOP_H
 
-#include "project.h"
+#ifdef __cplusplus
+
+#include <cstdbool>
 extern "C" {
-#include <sys/types.h>
-#include <dirent.h>
-}
 
-typedef enum {
-	MOTOR_PORT_A = 0,
-	MOTOR_PORT_B,
-	MOTOR_PORT_C,
-	MOTOR_PORT_D,
-	MOTOR_NR_PORTS
-} motorport_t;
-
-/* 23 for motorRootPath, NAME_MAX for motor name and then a / and null */
-#define MOTORPATH_MAX (23 + NAME_MAX + 1 + 1)
-
-class Motor
-{
-public:
-	Motor();
-	~Motor();
-	bool connect(motorport_t port);
-private:
-	static const char portNames[][5];
-	static const char motorRootPath[];
-	char motorPath[MOTORPATH_MAX];
-};
-
+#else	
+#include <stdbool.h>
 #endif
+
+#include <sys/types.h>
+
+unsigned int readFile(const char *pathname, char *buffer, unsigned int size);
+
+bool writeFile(const char *pathname, const char *buffer, unsigned int size);
+
+#ifdef __cplusplus
+}
+#endif
+	
+#endif /* FILEOP_H */

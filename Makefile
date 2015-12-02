@@ -14,12 +14,12 @@ CC = gcc
 CXX = g++
 
 # define any compile-time flags
-CFLAGS = --pedantic -Wall -g -std=c11
-CXXFLAGS = --pedantic -Wall -g -std=c++11
+CFLAGS = --pedantic -Wall -g -std=c11 -O2
+CXXFLAGS = --pedantic -Wall -g -std=c++11 -O2
 
 # define any directories containing header files other than /usr/include
 #
-INCLUDES = -I../include
+INCLUDES = -I./include
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -29,9 +29,9 @@ INCLUDES = -I../include
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS = -lm
+LIBS = -lm -lstdc++
 
-CSRCS =
+CSRCS =		platform/fileop.c
 
 # define the C++ source files
 CXXSRCS =	platform/motor.cpp \
@@ -76,7 +76,7 @@ $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) $(shell find . -name '*.o') *~ $(MAIN)
+	$(RM) $(shell find . -name '*.o') $(shell find . -name '*~') $(MAIN)
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
