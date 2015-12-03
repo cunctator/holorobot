@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
 {
@@ -48,6 +49,20 @@ unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
 			return n;
 		}
 	} while(true);
+}
+
+bool readFileUint(const char *pathname, unsigned int *v)
+{
+	bool retval = false;
+	FILE *file = fopen(pathname, "r");
+	if (file == NULL)
+		return retval;
+
+	if (fscanf(file, "%u", v) == 1)
+		retval = true;
+
+	fclose(file);
+	return retval;
 }
 
 bool writeFile(const char *pathname, const char *buffer, unsigned int size)

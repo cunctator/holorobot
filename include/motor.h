@@ -19,6 +19,7 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#include "lego.h"
 #include "project.h"
 extern "C" {
 #include <sys/types.h>
@@ -32,6 +33,10 @@ extern "C" {
 /* This is the maximum length of the full pathname of motor directory, it's
  * the length of motorRootPath, NAME_MAX for motor name and then a / and null */
 #define MOTORPATH_MAX (sizeof(MOTOR_ROOTPATH) + NAME_MAX + 2 * sizeof(char))
+/* This is the maximum legth of the full pathname of files in the motor
+   directory */
+#define MOTORPATHNAME_MAX \
+	(sizeof(MOTOR_ROOTPATH) + 2 * NAME_MAX + 2 * sizeof(char))
 
 #define PORTNAME_A "outA"
 #define PORTNAME_B "outB"
@@ -95,6 +100,7 @@ private:
 	enum Command command;
 	uint32_t commands;
 	unsigned int count_per_rot;
+	char driver_name[LEGO_NAME_SIZE + 1];
 	bool speed_regulation;
 	unsigned int duty_cycle;
 	unsigned int duty_cycle_sp;
