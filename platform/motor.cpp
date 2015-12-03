@@ -75,8 +75,13 @@ success:
 
 /* If these are modified, then you should also modify the motorport_t enum in
  * motor.h */
-const char Motor::portNames[][5] = { "outA", "outB", "outC", "outD" };
+const char Motor::portNames[][PORTNAME_MAXLEN] = { PORTNAME_A,
+						   PORTNAME_B,
+						   PORTNAME_C,
+						   PORTNAME_D };
+
 const char Motor::motorRootPath[] = MOTOR_ROOTPATH;
+
 const char Motor::commandNames[][CMDSTR_MAXLEN] = { CMDSTR_RUN_FOREVER,
 						    CMDSTR_RUN_TO_ABS_POS,
 						    CMDSTR_RUN_TO_REL_POS,
@@ -84,6 +89,7 @@ const char Motor::commandNames[][CMDSTR_MAXLEN] = { CMDSTR_RUN_FOREVER,
 						    CMDSTR_RUN_DIRECT,
 						    CMDSTR_STOP,
 						    CMDSTR_RESET };
+
 const char stopCommandNames[][STOPSTR_MAXLEN] = { STOPSTR_COAST,
 						  STOPSTR_BRAKE,
 						  STOPSTR_HOLD };

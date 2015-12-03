@@ -29,8 +29,15 @@ extern "C" {
 
 #define MOTOR_ROOTPATH "/sys/class/tacho-motor"
 
-/* 23 for motorRootPath, NAME_MAX for motor name and then a / and null */
+/* This is the maximum length of the full pathname of motor directory, it's
+ * the length of motorRootPath, NAME_MAX for motor name and then a / and null */
 #define MOTORPATH_MAX (sizeof(MOTOR_ROOTPATH) + NAME_MAX + 2 * sizeof(char))
+
+#define PORTNAME_A "outA"
+#define PORTNAME_B "outB"
+#define PORTNAME_C "outC"
+#define PORTNAME_D "outD"
+#define PORTNAME_MAXLEN (sizeof(PORTNAME_A))
 
 #define CMDSTR_RUN_FOREVER	"run-forever"
 #define CMDSTR_RUN_TO_ABS_POS	"run-to-abs-pos"
