@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <err.h>
 
-unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
+unsigned int readfile(const char *pathname, char *buffer, unsigned int size)
 {
 	ssize_t count;
 	size_t n = 0;
@@ -54,7 +54,7 @@ unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
 
 #define READFILE_BUFSIZE 32
 
-bool readFileUint(const char *pathname, unsigned int *v)
+bool readfile_uint(const char *pathname, unsigned int *v)
 {
 	bool retval = false;
 	int fd = open(pathname, O_RDONLY);
@@ -108,7 +108,7 @@ bool readFileUint(const char *pathname, unsigned int *v)
 	return retval;
 }
 
-bool readFileInt(const char *pathname, int *v)
+bool readfile_int(const char *pathname, int *v)
 {
 	bool retval = false;
 	int fd = open(pathname, O_RDONLY);
@@ -170,7 +170,7 @@ bool readFileInt(const char *pathname, int *v)
 	return retval;
 }
 
-bool writeFile(const char *pathname, const char *buffer, unsigned int size)
+bool writefile(const char *pathname, const char *buffer, unsigned int size)
 {
 	bool retval = false;
 	ssize_t count;

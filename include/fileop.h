@@ -30,9 +30,13 @@ extern "C" {
 
 #include <sys/types.h>
 
-unsigned int readFile(const char *pathname, char *buffer, unsigned int size);
+unsigned int readfile(const char *pathname, char *buffer, unsigned int size);
 
-bool writeFile(const char *pathname, const char *buffer, unsigned int size);
+bool readfile_int(const char *pathname, int *v);
+
+bool readfile_uint(const char *pathname, unsigned int *v);
+
+bool writefile(const char *pathname, const char *buffer, unsigned int size);
 
 #ifdef __cplusplus
 }
