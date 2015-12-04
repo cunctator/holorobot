@@ -30,8 +30,10 @@ unsigned int readfile(const char *pathname, char *buffer, unsigned int size)
 	ssize_t count;
 	size_t n = 0;
 	int fd = open(pathname, O_RDONLY);
-	if (fd < 0)
+	if (fd < 0) {
+		warn("Could not open file %s", pathname);
 		return 0;
+	}
 
 	do {
 		do {
@@ -175,8 +177,10 @@ bool writefile(const char *pathname, const char *buffer, unsigned int size)
 	bool retval = false;
 	ssize_t count;
 	int fd = open(pathname, O_WRONLY);
-	if (fd < 0)
+	if (fd < 0) {
+		warn("Could not open file %s", pathname);
 		return retval;
+	}
 
 	do {
 		do {
