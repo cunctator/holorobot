@@ -57,7 +57,7 @@ bool Motor::connect(enum MotorPort port)
 		if (n >= pathSize)
 			goto error;
 		memset(buffer, 0, bufferSize);
-		n = readFile(path, buffer, bufferSize);
+		n = readfile(path, buffer, bufferSize);
 		/* We only care about the first 4 chars, if they are contain
 		 * the correct magic out[ABCD] */
 		if (n >= 4 && strncmp(buffer, portNames[port], 4) == 0)
