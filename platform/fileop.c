@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
+#include <err.h>
 
 unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
 {
@@ -51,17 +52,121 @@ unsigned int readFile(const char *pathname, char *buffer, unsigned int size)
 	} while(true);
 }
 
+#define READFILE_BUFSIZE 32
+
 bool readFileUint(const char *pathname, unsigned int *v)
 {
 	bool retval = false;
-	FILE *file = fopen(pathname, "r");
-	if (file == NULL)
+	int fd = open(pathname, O_RDONLY);
+	char buffer[READFILE_BUFSIZE];
+	char *c;
+	ssize_t count;
+	int i;
+	unsigned int value;
+	unsigned int digit;
+
+	if (fd < 0) {
+		warn("Could not open file %s", pathname);
 		return retval;
+	}
 
-	if (fscanf(file, "%u", v) == 1)
+	/* This function must be fast so we cannot afford that many checks.
+	 * We just hope that the number will be in the first 32 characters 
+	 * and that read will return either a full buffer or until the eof */
+	do {
+		count = read(fd, buffer, READFILE_BUFSIZE);
+		if (count >= 0 || errno != EINTR)
+			break;
+	} while(true);
+	close(fd);
+
+	/* I believe that this will be faster than using fscanf() */
+	for (i = 0; i < count; i++) {
+		c = buffer + i;
+		if (*c >= 0 && *c <= 9)
+			break;
+	}
+
+	if (i < count) {
 		retval = true;
+		value = *c - '0';
+		i++;
+	}
 
-	fclose(file);
+	for (; i < count; i++) {
+		c = buffer + i;
+		if (*c >= 0 && *c <= 9)
+			break;
+		digit = *c - '0';
+		value *= 10;
+		value += digit;
+	}
+
+	if (retval)
+		*v = value;
+
+	return retval;
+}
+
+bool readFileInt(const char *pathname, int *v)
+{
+	bool retval = false;
+	int fd = open(pathname, O_RDONLY);
+	char buffer[READFILE_BUFSIZE];
+	char *c;
+	ssize_t count;
+	int i;
+	int value;
+	int digit;
+	bool negative = false;
+
+	if (fd < 0) {
+		warn("Could not open file %s", pathname);
+		return retval;
+	}
+
+	/* This function must be fast so we cannot afford that many checks.
+	 * We just hope that the number will be in the first 32 characters 
+	 * and that read will return either a full buffer or until the eof */
+	do {
+		count = read(fd, buffer, READFILE_BUFSIZE);
+		if (count >= 0 || errno != EINTR)
+			break;
+	} while(true);
+	close(fd);
+
+	/* I believe that this will be faster than using fscanf() */
+	for (i = 0; i < count; i++) {
+		c = buffer + i;
+		if (*c == '-') {
+			negative = true;
+			continue;
+		}
+		if (*c >= 0 && *c <= 9)
+			break;
+	}
+
+	if (i < count) {
+		retval = true;
+		value = *c - '0';
+		i++;
+	}
+
+	for (; i < count; i++) {
+		c = buffer + i;
+		if (*c >= 0 && *c <= 9)
+			break;
+		digit = *c - '0';
+		value *= 10;
+		value += digit;
+	}
+
+	if (retval) {
+		if (negative)
+			value = - value;
+		*v = value;
+	}
+
 	return retval;
 }
 
