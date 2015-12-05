@@ -27,8 +27,10 @@ extern "C" {
 #include <cstring>
 #include <cstdio>
 
-Motor::Motor()
+Motor::Motor() :
+	paramsOK(false)
 {
+	driver_name[LEGO_NAME_SIZE] = '\0';
 }
 
 Motor::~Motor()
@@ -71,6 +73,60 @@ success:
 		 dent->d_name);
 	closedir(dir);
 	return true;
+}
+
+unsigned int Motor::readMotor(const char *motorFile, char *buf,
+			      unsigned int bufsize)
+{
+	const size_t pathSize = MOTORPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", motorPath, motorFile);
+	return readfile(path, buf, bufsize);
+}
+
+bool Motor::readMotorUint(const char *motorfile, unsigned int *v) {
+	const size_t pathSize = MOTORPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", motorPath, motorfile);
+	return readfile_uint(path, v);
+}
+
+bool Motor::readMotorInt(const char *motorfile, int *v) {
+	const size_t pathSize = MOTORPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", motorPath, motorfile);
+	return readfile_int(path, v);
+}
+
+void Motor::scanParams()
+{
+	unsigned int n;
+	bool ok;
+
+	paramsOK = false;
+
+	n = readMotor("driver_name", driver_name, LEGO_NAME_SIZE);
+	if (n == 0)
+		return;
+
+	ok = readMotorUint("duty_cycle", &duty_cycle);
+	if (!ok)
+		return;
+
+	ok = readMotorUint("duty_cycle_sp", &duty_cycle_sp);
+	if (!ok)
+		return;
+
+	ok = readMotorUint("count_per_rot", &count_per_rot);
+	if (!ok)
+		return;
+
+	ok = readMotorInt("speed_sp", &speed_sp);
+	if (!ok)
+		return;
 }
 
 /* If these are modified, then you should also modify the motorport_t enum in

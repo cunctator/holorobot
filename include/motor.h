@@ -86,6 +86,10 @@ public:
 	};
 	bool connect(enum MotorPort port);
 private:
+	unsigned int readMotor(const char *motorFile, char *buf,
+			       unsigned int bufize);
+	bool readMotorUint(const char *motorFile, unsigned int *v);
+	bool readMotorInt(const char *motorFile, int *v);
 	void scanParams();
 	static const char portNames[][5];
 	static const char motorRootPath[];
@@ -104,7 +108,7 @@ private:
 	bool speed_regulation;
 	unsigned int duty_cycle;
 	unsigned int duty_cycle_sp;
-	unsigned int speed_sp;
+	int speed_sp;
 	uint32_t supported_stop_commands;
 	enum StopCommand stop_command;
 	/* This one tells if the params make sense, e.g. is the result of
