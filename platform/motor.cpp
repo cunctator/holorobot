@@ -42,7 +42,7 @@ bool Motor::connect(enum MotorPort port)
 	DIR *dir = opendir(motorRootPath);
 	struct dirent *dent;
 	unsigned long n;
-	const size_t pathSize = MOTORPATH_MAX + 10;
+	const size_t pathSize = MOTORPATHNAME_MAX;
 	char path[pathSize];
 	const size_t bufferSize = 5;
 	char buffer[bufferSize];

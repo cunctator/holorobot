@@ -30,9 +30,6 @@ extern "C" {
 
 #define MOTOR_ROOTPATH "/sys/class/tacho-motor"
 
-/* This is the maximum length of the full pathname of motor directory, it's
- * the length of motorRootPath, NAME_MAX for motor name and then a / and null */
-#define MOTORPATH_MAX (sizeof(MOTOR_ROOTPATH) + NAME_MAX + 2 * sizeof(char))
 /* This is the maximum legth of the full pathname of files in the motor
    directory */
 #define MOTORPATHNAME_MAX \
@@ -95,7 +92,7 @@ private:
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
 	static const char stopCommandNames[][STOPSTR_MAXLEN];
-	char motorPath[MOTORPATH_MAX];
+	char motorPath[MOTORPATHNAME_MAX];
 	/* These are meant to be various parameters that tells us about
 	 * the motor, these are the ones that make sense to cache in the
 	 * Motor objects, other we read every time from sysfs because they
