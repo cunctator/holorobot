@@ -144,6 +144,14 @@ void Motor::scanParams()
 	if (!ok)
 		return;
 
+	ok = readMotorInt("ramp_down_sp", &ramp_down_sp);
+	if (!ok)
+		return;
+
+	ok = readMotorInt("ramp_up_sp", &ramp_up_sp);
+	if (!ok)
+		return;
+
 	ok = readMotorInt("speed_sp", &speed_sp);
 	if (!ok)
 		return;
@@ -395,6 +403,26 @@ bool Motor::setDutyCycleSP(int value)
 	if (!retval)
 		return retval;
 	duty_cycle_sp = value;
+	return retval;
+}
+
+bool Motor::setRampDownSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("ramp_down_sp", value);
+	if (!retval)
+		return retval;
+	ramp_down_sp = value;
+	return retval;
+}
+
+bool Motor::setRampUpSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("ramp_up_sp", value);
+	if (!retval)
+		return retval;
+	ramp_up_sp = value;
 	return retval;
 }
 

@@ -90,12 +90,16 @@ public:
 	bool connect(enum MotorPort port);
 	__always_inline bool isCommandSupported(enum Command cmd);
 	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
-		__always_inline enum Command getCommand();
+	__always_inline enum Command getCommand();
+	__always_inline int getRampDownSP();
+	__always_inline int getRampUpSP();
 	__always_inline enum StopCommand getStopCommand();
 	__always_inline bool getSpeedRegulation();
 	bool setCommand(enum Command cmd);
 	bool setStopCommand(enum StopCommand cmd);
 	bool setDutyCycleSP(int value);
+	bool setRampDownSP(int value);
+	bool setRampUpSP(int value);
 	bool setSpeedSP(int value);
 	__always_inline bool getSpeed(int *value);
 private:
@@ -129,8 +133,10 @@ private:
 	uint32_t commands;
 	int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
-	bool speed_regulation;
 	int duty_cycle_sp;
+	int ramp_down_sp;
+	int ramp_up_sp;
+	bool speed_regulation;
 	int speed_sp;
 	/* Bitmask of supported commands */
 	uint32_t stop_commands;
@@ -160,6 +166,16 @@ __always_inline enum Motor::Command Motor::getCommand()
 __always_inline enum Motor::StopCommand Motor::getStopCommand()
 {
 	return stop_command;
+}
+
+__always_inline int Motor::getRampDownSP()
+{
+	return ramp_down_sp;
+}
+
+__always_inline int Motor::getRampUpSP()
+{
+	return ramp_up_sp;
 }
 
 __always_inline bool Motor::getSpeedRegulation()
