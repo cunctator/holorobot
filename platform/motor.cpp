@@ -135,6 +135,18 @@ void Motor::scanParams()
 	ok = scanStopCommands();
 	if (!ok)
 		return;
+
+	ok = getCommandFromDriver(&command);
+	if (!ok)
+		return;
+
+	ok = getStopCommandFromDriver(&stop_command);
+	if (!ok)
+		return;
+
+	ok = getSpeedRegulationFromDriver(&speed_regulation);
+	if (!ok)
+		return;
 }
 
 bool Motor::scanCommands()
@@ -227,6 +239,99 @@ bool Motor::scanStopCommands()
 	if (stop_commands != 0)
 		retval = true;
 	return retval;
+}
+
+bool Motor::getCommandFromDriver(enum Command *cmd)
+{
+	bool retval = false;
+	const size_t bufsize = CMDSTR_MAXLEN + 2;
+	char buf[bufsize];
+	unsigned int n;
+	int i;
+	const char *cmd_cand;
+	size_t len;
+
+	n = readMotor("command", buf, bufsize - 1);
+	if (n < 1)
+		return retval;
+
+	buf[n] = '\0';
+	for (i = 0; i < CMD_NR; i++) {
+		cmd_cand = commandNames[i];
+		len = strlen(cmd_cand);
+		if (len > n)
+			continue;
+		/* We can do this, because if you look at the commands in
+		 * motor.h, you see that while commands have common substrings,
+		 * no command is a substring of another command. If commands
+		 * are added so that this is no longer true, this would have
+		 * to be modified to check for the longest matching string or
+		 * something */
+		if (!strncmp(cmd_cand, buf, len)) {
+			retval = true;
+			*cmd = (enum Command) i;
+			break;
+		}
+	}
+	return retval;
+}
+
+bool Motor::getStopCommandFromDriver(enum StopCommand *cmd)
+{
+	bool retval = false;
+	const size_t bufsize = STOPSTR_MAXLEN + 2;
+	char buf[bufsize];
+	unsigned int n;
+	int i;
+	const char *cmd_cand;
+	size_t len;
+
+	n = readMotor("stop_command", buf, bufsize - 1);
+	if (n < 1)
+		return retval;
+
+	buf[n] = '\0';
+	for (i = 0; i < CMD_NR; i++) {
+		cmd_cand = stopCommandNames[i];
+		len = strlen(cmd_cand);
+		if (len > n)
+			continue;
+		/* We can do this, because if you look at the stop commands in
+		 * motor.h, you see that no command is a substring of another
+		 * command. If stop commands are added so that this is no
+		 * longer true, this would have to be modified to check for the
+		 * longest matching string or something */
+		if (!strncmp(cmd_cand, buf, len)) {
+			retval = true;
+			*cmd = (enum StopCommand) i;
+			break;
+		}
+	}
+	return retval;
+}
+
+bool Motor::getSpeedRegulationFromDriver(bool *value)
+{
+	const size_t bufsize = SPEED_REGULATION_MAXLEN + 1;
+	char buf[bufsize];
+	unsigned int n;
+	size_t len;
+
+	n = readMotor("speed_regulation", buf, bufsize - 1);
+	if (n < 1)
+		return false;
+
+	len = strlen(SPEED_REGULATION_TRUE);
+	if (n >= len && !strncmp(buf, SPEED_REGULATION_TRUE, len)) {
+		*value = true;
+		return true;
+	}
+	len = strlen(SPEED_REGULATION_FALSE);
+	if (n >= len && !strncmp(buf, SPEED_REGULATION_FALSE, len)) {
+		*value = false;
+		return true;
+	}
+	return false;
 }
 
 /* If these are modified, then you should also modify the motorport_t enum in

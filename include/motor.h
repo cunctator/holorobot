@@ -55,6 +55,10 @@ extern "C" {
 #define STOPSTR_HOLD		"hold"
 #define STOPSTR_MAXLEN (sizeof(STOPSTR_COAST))
 
+#define SPEED_REGULATION_TRUE	"on"
+#define SPEED_REGULATION_FALSE  "off"
+#define SPEED_REGULATION_MAXLEN (sizeof(SPEED_REGULATION_FALSE))
+
 class Motor
 {
 public:
@@ -94,6 +98,9 @@ private:
 	bool scanStopCommands();
 	__always_inline void setCommandSupported(enum Command cmd);
 	__always_inline void setStopCommandSupported(enum StopCommand cmd);
+	bool getCommandFromDriver(enum Command *cmd);
+	bool getStopCommandFromDriver(enum StopCommand *cmd);
+	bool getSpeedRegulationFromDriver(bool *value);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
