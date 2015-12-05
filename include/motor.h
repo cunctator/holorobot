@@ -74,12 +74,14 @@ public:
 		CMD_RUN_TIMED,
 		CMD_RUN_DIRECT,
 		CMD_STOP,
-		CMD_RESET
+		CMD_RESET,
+		CMD_NR
 	};
 	enum StopCommand {
 		STOPCMD_COAST = 0,
 		STOPCMD_BRAKE,
-		STOPCMD_HOLD
+		STOPCMD_HOLD,
+		STOPCMD_NR
 	};
 	bool connect(enum MotorPort port);
 private:
@@ -88,6 +90,8 @@ private:
 	bool readMotorUint(const char *motorFile, unsigned int *v);
 	bool readMotorInt(const char *motorFile, int *v);
 	void scanParams();
+	bool scanCommands();
+	__always_inline void setCommandSupported(enum Command cmd);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
@@ -99,6 +103,7 @@ private:
 	 * are volatile and don't make sense to cache in the object */
 	enum MotorPort port;
 	enum Command command;
+	/* Bitmask of supported commands */
 	uint32_t commands;
 	unsigned int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
@@ -106,7 +111,8 @@ private:
 	unsigned int duty_cycle;
 	unsigned int duty_cycle_sp;
 	int speed_sp;
-	uint32_t supported_stop_commands;
+	/* Bitmask of supported commands */
+	uint32_t stop_commands;
 	enum StopCommand stop_command;
 	/* This one tells if the params make sense, e.g. is the result of
 	 * sucessfully reading the from a /syc/class/tacho-motor/mororX/
@@ -114,5 +120,10 @@ private:
 	 */
 	bool paramsOK;
 };
+
+__always_inline void Motor::setCommandSupported(enum Command cmd)
+{
+	commands |= 0x1 << cmd;
+}
 
 #endif

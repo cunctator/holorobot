@@ -127,6 +127,56 @@ void Motor::scanParams()
 	ok = readMotorInt("speed_sp", &speed_sp);
 	if (!ok)
 		return;
+
+	ok = scanCommands();
+	if (!ok)
+		return;
+}
+
+bool Motor::scanCommands()
+{
+	bool retval = false;
+	const size_t bufsize = CMDSTR_MAXLEN * CMD_NR + 2;
+	char buf[bufsize];
+	char *lastchr;
+	int i;
+	enum Command cmd;
+	unsigned int n;
+	char *saveptr;
+	char *token;
+	size_t len;
+	const char *cmd_cand;
+
+	/* Begin with setting the bitmask to zero, no commands supported, bits
+	 * will be added by setCommandsSupported() below */
+	commands = 0;
+
+	n = readMotor("commands", buf, bufsize - 1);
+	if (n < 2)
+		return false;
+	/* Make sure our string is null terminated */
+	lastchr = buf + n;
+	*lastchr = '\0';
+
+	token = strtok_r(buf, " ", &saveptr);
+	while (token != NULL) {
+		for (i = 0; i < CMD_NR; i++) {
+			cmd_cand = commandNames[i];
+			len = strlen(cmd_cand);
+			if (token + len > lastchr)
+				continue;
+			if (!strncmp(cmd_cand, token, len)) {
+				cmd = (enum Command) i;
+				setCommandSupported(cmd);
+			}
+		}
+		token = strtok_r(NULL, " ", &saveptr);
+	}
+	/* If the motor has no supported commands it's not usable and we have
+	 * most likely failed somewhere above */
+	if (commands != 0)
+		retval = true;
+	return retval;
 }
 
 /* If these are modified, then you should also modify the motorport_t enum in
