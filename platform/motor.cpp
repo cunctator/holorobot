@@ -133,6 +133,7 @@ void Motor::scanParams()
 	paramsOK = false;
 
 	n = readMotor("driver_name", driver_name, LEGO_NAME_SIZE);
+	driver_name[n] = '\0';
 	if (n == 0)
 		return;
 
@@ -153,6 +154,10 @@ void Motor::scanParams()
 		return;
 
 	ok = readMotorInt("speed_sp", &speed_sp);
+	if (!ok)
+		return;
+
+	ok = readMotorInt("time_sp", &time_sp);
 	if (!ok)
 		return;
 
@@ -362,6 +367,46 @@ bool Motor::getSpeedRegulationFromDriver(bool *value)
 	return false;
 }
 
+void Motor::readState()
+{
+	const size_t bufsize = STATESTR_MAXLEN * STATE_NR + 2;
+	char buf[bufsize];
+	char *lastchr;
+	int i;
+	enum State s;
+	unsigned int n;
+	char *saveptr;
+	char *token;
+	size_t len;
+	const char *state_cand;
+
+	/* Begin with setting the bitmask to zero, no commands supported, bits
+	 * will be added by setCommandsSupported() below */
+	state = 0;
+
+	n = readMotor("state", buf, bufsize - 1);
+	if (n < 2)
+		return;
+	/* Make sure our string is null terminated */
+	lastchr = buf + n;
+	*lastchr = '\0';
+
+	token = strtok_r(buf, " ", &saveptr);
+	while (token != NULL) {
+		for (i = 0; i < CMD_NR; i++) {
+			state_cand = stateNames[i];
+			len = strlen(state_cand);
+			if (token + len > lastchr)
+				continue;
+			if (!strncmp(state_cand, token, len)) {
+				s = (enum State) i;
+				setStateActive(s);
+			}
+		}
+		token = strtok_r(NULL, " ", &saveptr);
+	}
+}
+
 bool Motor::setCommand(enum Command cmd)
 {
 	size_t len;
@@ -408,12 +453,7 @@ bool Motor::setDutyCycleSP(int value)
 
 bool Motor::setPosition(int value)
 {
-	bool retval;
-	retval = writeMotorInt("position", value);
-	if (!retval)
-		return retval;
-	position = value;
-	return retval;
+	return writeMotorInt("position", value);
 }
 
 bool Motor::setPositionSP(int value)
@@ -456,6 +496,16 @@ bool Motor::setSpeedSP(int value)
 	return retval;
 }
 
+bool Motor::setTimeSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("time_sp", value);
+	if (!retval)
+		return retval;
+	time_sp = value;
+	return retval;
+}
+
 /* If these are modified, then you should also modify the motorport_t enum in
  * motor.h */
 const char Motor::portNames[][PORTNAME_MAXLEN] = { PORTNAME_A,
@@ -474,5 +524,11 @@ const char Motor::commandNames[][CMDSTR_MAXLEN] = { CMDSTR_RUN_FOREVER,
 						    CMDSTR_RESET };
 
 const char Motor::stopCommandNames[][STOPSTR_MAXLEN] = { STOPSTR_COAST,
-						  STOPSTR_BRAKE,
-						  STOPSTR_HOLD };
+							 STOPSTR_BRAKE,
+							 STOPSTR_HOLD };
+
+const char Motor::stateNames[][STATESTR_MAXLEN] = { STATESTR_RUNNING,
+						    STATESTR_RAMPING,
+						    STATESTR_HOLDING,
+						    STATESTR_STALLED,
+						    STATESTR_NONE };

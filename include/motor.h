@@ -39,7 +39,7 @@ extern "C" {
 #define PORTNAME_B "outB"
 #define PORTNAME_C "outC"
 #define PORTNAME_D "outD"
-#define PORTNAME_MAXLEN (sizeof(PORTNAME_A))
+#define PORTNAME_MAXLEN		(sizeof(PORTNAME_A))
 
 #define CMDSTR_RUN_FOREVER	"run-forever"
 #define CMDSTR_RUN_TO_ABS_POS	"run-to-abs-pos"
@@ -48,12 +48,19 @@ extern "C" {
 #define CMDSTR_RUN_DIRECT	"run-direct"
 #define CMDSTR_STOP		"stop"
 #define CMDSTR_RESET		"reset"
-#define CMDSTR_MAXLEN (sizeof(CMDSTR_RUN_TO_ABS_POS))
+#define CMDSTR_MAXLEN		(sizeof(CMDSTR_RUN_TO_ABS_POS))
 
 #define STOPSTR_COAST		"coast"
 #define STOPSTR_BRAKE		"brake"
 #define STOPSTR_HOLD		"hold"
-#define STOPSTR_MAXLEN (sizeof(STOPSTR_COAST))
+#define STOPSTR_MAXLEN		(sizeof(STOPSTR_COAST))
+
+#define STATESTR_RUNNING	"running"
+#define STATESTR_RAMPING	"ramping"
+#define STATESTR_HOLDING	"holding"
+#define STATESTR_STALLED	"stalled"
+#define STATESTR_NONE		"bogus"
+#define STATESTR_MAXLEN		(sizeof(STATESTR_RUNNING))
 
 #define SPEED_REGULATION_TRUE	"on"
 #define SPEED_REGULATION_FALSE  "off"
@@ -87,17 +94,31 @@ public:
 		STOPCMD_HOLD,
 		STOPCMD_NR
 	};
+	enum State {
+		STATE_RUNNING = 0,
+		STATE_RAMPING,
+		STATE_HOLDING,
+		STATE_STALLED,
+		STATE_NONE,
+		STATE_NR
+	};
 	bool connect(enum MotorPort port);
-	__always_inline bool isCommandSupported(enum Command cmd);
-	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
 	__always_inline enum Command getCommand();
+	__always_inline char *getDriverName();
 	__always_inline bool getPosition(int *value);
 	__always_inline int getPositionSP();
 	__always_inline int getRampDownSP();
 	__always_inline int getRampUpSP();
 	__always_inline bool getSpeed(int *value);
 	__always_inline bool getSpeedRegulation();
+	uint32_t getStateMask();
+	uint32_t getStateMaskBit(enum State s);
 	__always_inline enum StopCommand getStopCommand();
+	__always_inline int getTimeSP();
+	__always_inline bool isCommandSupported(enum Command cmd);
+	__always_inline bool isStateActive(enum State s);
+	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
+	void readState();
 	bool setCommand(enum Command cmd);
 	bool setStopCommand(enum StopCommand cmd);
 	bool setDutyCycleSP(int value);
@@ -106,6 +127,7 @@ public:
 	bool setRampDownSP(int value);
 	bool setRampUpSP(int value);
 	bool setSpeedSP(int value);
+	bool setTimeSP(int value);
 private:
 	unsigned int readMotor(const char *motorFile, char *buf,
 			       unsigned int bufize);
@@ -117,6 +139,7 @@ private:
 	void scanParams();
 	bool scanCommands();
 	bool scanStopCommands();
+	__always_inline void setStateActive(enum State s);
 	__always_inline void setCommandSupported(enum Command cmd);
 	__always_inline void setStopCommandSupported(enum StopCommand cmd);
 	bool getCommandFromDriver(enum Command *cmd);
@@ -126,6 +149,7 @@ private:
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
 	static const char stopCommandNames[][STOPSTR_MAXLEN];
+	static const char stateNames[][STATESTR_MAXLEN];
 	char motorPath[MOTORPATHNAME_MAX];
 	/* These are meant to be various parameters that tells us about
 	 * the motor, these are the ones that make sense to cache in the
@@ -138,10 +162,13 @@ private:
 	int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
 	int duty_cycle_sp;
+	int position_sp;
 	int ramp_down_sp;
 	int ramp_up_sp;
 	bool speed_regulation;
 	int speed_sp;
+	uint32_t state;
+	int time_sp;
 	/* Bitmask of supported commands */
 	uint32_t stop_commands;
 	enum StopCommand stop_command;
@@ -167,12 +194,17 @@ __always_inline enum Motor::Command Motor::getCommand()
 	return command;
 }
 
-__alwasy_inline bool Motor::getPosition(int *value)
+__always_inline char *Motor::getDriverName()
 {
-	readMotorInt("position", value);
+	return driver_name;
 }
 
-__alwasy_inline int Motor::getPositionSP()
+__always_inline bool Motor::getPosition(int *value)
+{
+	return readMotorInt("position", value);
+}
+
+__always_inline int Motor::getPositionSP()
 {
 	return position_sp;
 }
@@ -197,6 +229,22 @@ __always_inline bool Motor::getSpeedRegulation()
 	return speed_regulation;
 }
 
+__always_inline uint32_t Motor::getStateMask()
+{
+	return state;
+}
+
+__always_inline uint32_t Motor::getStateMaskBit(enum State s)
+{
+	return 0x1 << s;
+}
+
+__always_inline int Motor::getTimeSP()
+{
+	return time_sp;
+}
+
+
 __always_inline bool Motor::isCommandSupported(enum Command cmd)
 {
 	return (commands & (0x1 << cmd)) != 0;
@@ -207,9 +255,19 @@ __always_inline bool Motor::isStopCommandSupported(enum StopCommand cmd)
 	return (stop_commands & (0x1 << cmd)) != 0;
 }
 
+__always_inline bool Motor::isStateActive(enum State s)
+{
+	return (state & (0x1 << s)) != 0;
+}
+
 __always_inline bool Motor::getSpeed(int *value)
 {
 	return readMotorInt("speed", value);
+}
+
+__always_inline void Motor::setStateActive(enum State s)
+{
+	state |= 0x1 << s;
 }
 
 #endif

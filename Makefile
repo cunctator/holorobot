@@ -37,6 +37,9 @@ CSRCS =		platform/fileop.c
 CXXSRCS =	platform/motor.cpp \
 		src/main.cpp
 
+ALLSRCS  = $(CSRCS)
+ALLSRCS += $(CXXSRCS)
+
 # define the C object files 
 #
 # This uses Suffix Replacement within a macro:
@@ -78,7 +81,7 @@ $(MAIN): $(OBJS)
 clean:
 	$(RM) $(shell find . -name '*.o') $(shell find . -name '*~') $(MAIN)
 
-depend: $(SRCS)
+depend: $(ALLSRCS)
 	makedepend $(INCLUDES) $^
 
 # DO NOT DELETE THIS LINE -- make depend needs it
