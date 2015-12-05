@@ -131,6 +131,10 @@ void Motor::scanParams()
 	ok = scanCommands();
 	if (!ok)
 		return;
+
+	ok = scanStopCommands();
+	if (!ok)
+		return;
 }
 
 bool Motor::scanCommands()
@@ -179,6 +183,52 @@ bool Motor::scanCommands()
 	return retval;
 }
 
+bool Motor::scanStopCommands()
+{
+	bool retval = false;
+	const size_t bufsize = STOPSTR_MAXLEN * STOPCMD_NR + 2;
+	char buf[bufsize];
+	char *lastchr;
+	int i;
+	enum StopCommand cmd;
+	unsigned int n;
+	char *saveptr;
+	char *token;
+	size_t len;
+	const char *cmd_cand;
+
+	/* Begin with setting the bitmask to zero, no commands supported, bits
+	 * will be added by setStopCommandsSupported() below */
+	stop_commands = 0;
+
+	n = readMotor("stop_commands", buf, bufsize - 1);
+	if (n < 2)
+		return false;
+	/* Make sure our string is null terminated */
+	lastchr = buf + n;
+	*lastchr = '\0';
+
+	token = strtok_r(buf, " ", &saveptr);
+	while (token != NULL) {
+		for (i = 0; i < CMD_NR; i++) {
+			cmd_cand = stopCommandNames[i];
+			len = strlen(cmd_cand);
+			if (token + len > lastchr)
+				continue;
+			if (!strncmp(cmd_cand, token, len)) {
+				cmd = (enum StopCommand) i;
+				setStopCommandSupported(cmd);
+			}
+		}
+		token = strtok_r(NULL, " ", &saveptr);
+	}
+	/* If the motor has no supported stop commands it's fishy and we have
+	 * most likely failed somewhere above */
+	if (stop_commands != 0)
+		retval = true;
+	return retval;
+}
+
 /* If these are modified, then you should also modify the motorport_t enum in
  * motor.h */
 const char Motor::portNames[][PORTNAME_MAXLEN] = { PORTNAME_A,
@@ -196,6 +246,6 @@ const char Motor::commandNames[][CMDSTR_MAXLEN] = { CMDSTR_RUN_FOREVER,
 						    CMDSTR_STOP,
 						    CMDSTR_RESET };
 
-const char stopCommandNames[][STOPSTR_MAXLEN] = { STOPSTR_COAST,
+const char Motor::stopCommandNames[][STOPSTR_MAXLEN] = { STOPSTR_COAST,
 						  STOPSTR_BRAKE,
 						  STOPSTR_HOLD };

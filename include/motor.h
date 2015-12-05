@@ -91,7 +91,9 @@ private:
 	bool readMotorInt(const char *motorFile, int *v);
 	void scanParams();
 	bool scanCommands();
+	bool scanStopCommands();
 	__always_inline void setCommandSupported(enum Command cmd);
+	__always_inline void setStopCommandSupported(enum StopCommand cmd);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
@@ -124,6 +126,11 @@ private:
 __always_inline void Motor::setCommandSupported(enum Command cmd)
 {
 	commands |= 0x1 << cmd;
+}
+
+__always_inline void Motor::setStopCommandSupported(enum StopCommand cmd)
+{
+	stop_commands |= 0x1 << cmd;
 }
 
 #endif
