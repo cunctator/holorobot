@@ -113,6 +113,7 @@ private:
 	bool setStopCommand(enum StopCommand cmd);
 	bool setDutyCycleSP(int value);
 	bool setSpeedSP(int value);
+	__always_inline bool getSpeed(int *value);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
@@ -174,6 +175,11 @@ __always_inline bool Motor::isCommandSupported(enum Command cmd)
 __always_inline bool Motor::isStopCommandSupported(enum StopCommand cmd)
 {
 	return (stop_commands & (0x1 << cmd)) != 0;
+}
+
+__always_inline bool Motor::getSpeed(int *value)
+{
+	return readMotorInt("speed", value);
 }
 
 #endif
