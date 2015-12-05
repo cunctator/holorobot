@@ -406,6 +406,26 @@ bool Motor::setDutyCycleSP(int value)
 	return retval;
 }
 
+bool Motor::setPosition(int value)
+{
+	bool retval;
+	retval = writeMotorInt("position", value);
+	if (!retval)
+		return retval;
+	position = value;
+	return retval;
+}
+
+bool Motor::setPositionSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("position_sp", value);
+	if (!retval)
+		return retval;
+	position_sp = value;
+	return retval;
+}
+
 bool Motor::setRampDownSP(int value)
 {
 	bool retval;

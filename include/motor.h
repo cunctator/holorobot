@@ -91,17 +91,21 @@ public:
 	__always_inline bool isCommandSupported(enum Command cmd);
 	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
 	__always_inline enum Command getCommand();
+	__always_inline bool getPosition(int *value);
+	__always_inline int getPositionSP();
 	__always_inline int getRampDownSP();
 	__always_inline int getRampUpSP();
-	__always_inline enum StopCommand getStopCommand();
+	__always_inline bool getSpeed(int *value);
 	__always_inline bool getSpeedRegulation();
+	__always_inline enum StopCommand getStopCommand();
 	bool setCommand(enum Command cmd);
 	bool setStopCommand(enum StopCommand cmd);
 	bool setDutyCycleSP(int value);
+	bool setPosition(int value);
+	bool setPositionSP(int value);
 	bool setRampDownSP(int value);
 	bool setRampUpSP(int value);
 	bool setSpeedSP(int value);
-	__always_inline bool getSpeed(int *value);
 private:
 	unsigned int readMotor(const char *motorFile, char *buf,
 			       unsigned int bufize);
@@ -161,6 +165,16 @@ __always_inline void Motor::setStopCommandSupported(enum StopCommand cmd)
 __always_inline enum Motor::Command Motor::getCommand()
 {
 	return command;
+}
+
+__alwasy_inline bool Motor::getPosition(int *value)
+{
+	readMotorInt("position", value);
+}
+
+__alwasy_inline int Motor::getPositionSP()
+{
+	return position_sp;
 }
 
 __always_inline enum Motor::StopCommand Motor::getStopCommand()
