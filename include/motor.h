@@ -105,11 +105,11 @@ private:
 	enum Command command;
 	/* Bitmask of supported commands */
 	uint32_t commands;
-	unsigned int count_per_rot;
+	int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
 	bool speed_regulation;
-	unsigned int duty_cycle;
-	unsigned int duty_cycle_sp;
+	int duty_cycle;
+	int duty_cycle_sp;
 	int speed_sp;
 	/* Bitmask of supported commands */
 	uint32_t stop_commands;

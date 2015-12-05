@@ -112,15 +112,15 @@ void Motor::scanParams()
 	if (n == 0)
 		return;
 
-	ok = readMotorUint("duty_cycle", &duty_cycle);
+	ok = readMotorInt("duty_cycle", &duty_cycle);
 	if (!ok)
 		return;
 
-	ok = readMotorUint("duty_cycle_sp", &duty_cycle_sp);
+	ok = readMotorInt("duty_cycle_sp", &duty_cycle_sp);
 	if (!ok)
 		return;
 
-	ok = readMotorUint("count_per_rot", &count_per_rot);
+	ok = readMotorInt("count_per_rot", &count_per_rot);
 	if (!ok)
 		return;
 
