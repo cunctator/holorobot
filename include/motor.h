@@ -88,6 +88,16 @@ public:
 		STOPCMD_NR
 	};
 	bool connect(enum MotorPort port);
+	__always_inline bool isCommandSupported(enum Command cmd);
+	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
+		__always_inline enum Command getCommand();
+	__always_inline enum StopCommand getStopCommand();
+	__always_inline bool getSpeedRegulation();
+	bool setCommand(enum Command cmd);
+	bool setStopCommand(enum StopCommand cmd);
+	bool setDutyCycleSP(int value);
+	bool setSpeedSP(int value);
+	__always_inline bool getSpeed(int *value);
 private:
 	unsigned int readMotor(const char *motorFile, char *buf,
 			       unsigned int bufize);
@@ -101,19 +111,9 @@ private:
 	bool scanStopCommands();
 	__always_inline void setCommandSupported(enum Command cmd);
 	__always_inline void setStopCommandSupported(enum StopCommand cmd);
-	__always_inline bool isCommandSupported(enum Command cmd);
-	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
 	bool getCommandFromDriver(enum Command *cmd);
 	bool getStopCommandFromDriver(enum StopCommand *cmd);
 	bool getSpeedRegulationFromDriver(bool *value);
-	__always_inline enum Command getCommand();
-	__always_inline enum StopCommand getStopCommand();
-	__always_inline bool getSpeedRegulation();
-	bool setCommand(enum Command cmd);
-	bool setStopCommand(enum StopCommand cmd);
-	bool setDutyCycleSP(int value);
-	bool setSpeedSP(int value);
-	__always_inline bool getSpeed(int *value);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
