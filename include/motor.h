@@ -72,11 +72,11 @@ public:
 	Motor();
 	~Motor();
 	enum MotorPort {
-		MOTOR_PORT_A = 0,
-		MOTOR_PORT_B,
-		MOTOR_PORT_C,
-		MOTOR_PORT_D,
-		MOTOR_NR_PORTS
+		PORT_A = 0,
+		PORT_B,
+		PORT_C,
+		PORT_D,
+		PORTS_NR
 	};
 	enum Command {
 		CMD_RUN_FOREVER = 0,
@@ -86,13 +86,13 @@ public:
 		CMD_RUN_DIRECT,
 		CMD_STOP,
 		CMD_RESET,
-		CMD_NR
+		CMDS_NR
 	};
 	enum StopCommand {
 		STOPCMD_COAST = 0,
 		STOPCMD_BRAKE,
 		STOPCMD_HOLD,
-		STOPCMD_NR
+		STOPCMDS_NR
 	};
 	enum State {
 		STATE_RUNNING = 0,
@@ -100,7 +100,7 @@ public:
 		STATE_HOLDING,
 		STATE_STALLED,
 		STATE_NONE,
-		STATE_NR
+		STATES_NR
 	};
 	bool connect(enum MotorPort port);
 	__always_inline enum Command getCommand();

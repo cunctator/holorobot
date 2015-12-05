@@ -185,7 +185,7 @@ void Motor::scanParams()
 bool Motor::scanCommands()
 {
 	bool retval = false;
-	const size_t bufsize = CMDSTR_MAXLEN * CMD_NR + 2;
+	const size_t bufsize = CMDSTR_MAXLEN * CMDS_NR + 2;
 	char buf[bufsize];
 	char *lastchr;
 	int i;
@@ -209,7 +209,7 @@ bool Motor::scanCommands()
 
 	token = strtok_r(buf, " ", &saveptr);
 	while (token != NULL) {
-		for (i = 0; i < CMD_NR; i++) {
+		for (i = 0; i < CMDS_NR; i++) {
 			cmd_cand = commandNames[i];
 			len = strlen(cmd_cand);
 			if (token + len > lastchr)
@@ -231,7 +231,7 @@ bool Motor::scanCommands()
 bool Motor::scanStopCommands()
 {
 	bool retval = false;
-	const size_t bufsize = STOPSTR_MAXLEN * STOPCMD_NR + 2;
+	const size_t bufsize = STOPSTR_MAXLEN * STOPCMDS_NR + 2;
 	char buf[bufsize];
 	char *lastchr;
 	int i;
@@ -255,7 +255,7 @@ bool Motor::scanStopCommands()
 
 	token = strtok_r(buf, " ", &saveptr);
 	while (token != NULL) {
-		for (i = 0; i < CMD_NR; i++) {
+		for (i = 0; i < CMDS_NR; i++) {
 			cmd_cand = stopCommandNames[i];
 			len = strlen(cmd_cand);
 			if (token + len > lastchr)
@@ -289,7 +289,7 @@ bool Motor::getCommandFromDriver(enum Command *cmd)
 		return retval;
 
 	buf[n] = '\0';
-	for (i = 0; i < CMD_NR; i++) {
+	for (i = 0; i < CMDS_NR; i++) {
 		cmd_cand = commandNames[i];
 		len = strlen(cmd_cand);
 		if (len > n)
@@ -324,7 +324,7 @@ bool Motor::getStopCommandFromDriver(enum StopCommand *cmd)
 		return retval;
 
 	buf[n] = '\0';
-	for (i = 0; i < CMD_NR; i++) {
+	for (i = 0; i < CMDS_NR; i++) {
 		cmd_cand = stopCommandNames[i];
 		len = strlen(cmd_cand);
 		if (len > n)
@@ -369,7 +369,7 @@ bool Motor::getSpeedRegulationFromDriver(bool *value)
 
 void Motor::readState()
 {
-	const size_t bufsize = STATESTR_MAXLEN * STATE_NR + 2;
+	const size_t bufsize = STATESTR_MAXLEN * STATES_NR + 2;
 	char buf[bufsize];
 	char *lastchr;
 	int i;
@@ -393,7 +393,7 @@ void Motor::readState()
 
 	token = strtok_r(buf, " ", &saveptr);
 	while (token != NULL) {
-		for (i = 0; i < CMD_NR; i++) {
+		for (i = 0; i < CMDS_NR; i++) {
 			state_cand = stateNames[i];
 			len = strlen(state_cand);
 			if (token + len > lastchr)
