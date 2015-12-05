@@ -101,6 +101,30 @@ bool Motor::readMotorInt(const char *motorfile, int *v) {
 	return readfile_int(path, v);
 }
 
+bool Motor::writeMotor(const char *motorFile,
+		       const char *buf,
+		       unsigned int bufsize)
+{
+	const size_t pathSize = MOTORPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", motorPath, motorFile);
+	return writefile(path, buf, bufsize);
+}
+
+bool Motor::writeMotorInt(const char *motorFile, int v)
+{
+	const size_t pathSize = MOTORPATHNAME_MAX;
+	char path[pathSize];
+	const size_t strsize = 30;
+	char intstr[strsize];
+	unsigned int n;
+
+	snprintf(path, pathSize, "%s/%s", motorPath, motorFile);
+	n = snprintf(intstr, strsize, "%d", v);
+	return writefile(path, intstr, n);
+}
+
 void Motor::scanParams()
 {
 	unsigned int n;
@@ -110,10 +134,6 @@ void Motor::scanParams()
 
 	n = readMotor("driver_name", driver_name, LEGO_NAME_SIZE);
 	if (n == 0)
-		return;
-
-	ok = readMotorInt("duty_cycle", &duty_cycle);
-	if (!ok)
 		return;
 
 	ok = readMotorInt("duty_cycle_sp", &duty_cycle_sp);
@@ -332,6 +352,60 @@ bool Motor::getSpeedRegulationFromDriver(bool *value)
 		return true;
 	}
 	return false;
+}
+
+bool Motor::setCommand(enum Command cmd)
+{
+	size_t len;
+	bool retval = false;
+	const char *cmdstr;
+
+	if (!isCommandSupported(cmd))
+		return retval;
+	cmdstr = commandNames[cmd];
+	len = strlen(cmdstr);
+	retval = writeMotor("command", cmdstr, len);
+	if (!retval)
+		return retval;
+	command = cmd;
+	return retval;
+}
+
+bool Motor::setStopCommand(enum StopCommand cmd)
+{
+	size_t len;
+	bool retval = false;
+	const char *cmdstr;
+
+	if (!isStopCommandSupported(cmd))
+		return retval;
+	cmdstr = stopCommandNames[cmd];
+	len = strlen(cmdstr);
+	retval = writeMotor("stop_command", cmdstr, len);
+	if (!retval)
+		return retval;
+	stop_command = cmd;
+	return retval;
+}
+
+bool Motor::setDutyCycleSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("duty_cycle_sp", value);
+	if (!retval)
+		return retval;
+	duty_cycle_sp = value;
+	return retval;
+}
+
+bool Motor::setSpeedSP(int value)
+{
+	bool retval;
+	retval = writeMotorInt("speed_sp", value);
+	if (!retval)
+		return retval;
+	speed_sp = value;
+	return retval;
 }
 
 /* If these are modified, then you should also modify the motorport_t enum in

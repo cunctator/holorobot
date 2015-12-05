@@ -93,14 +93,26 @@ private:
 			       unsigned int bufize);
 	bool readMotorUint(const char *motorFile, unsigned int *v);
 	bool readMotorInt(const char *motorFile, int *v);
+	bool writeMotor(const char *motorFile, const char *buf,
+			unsigned int bufsize);
+	bool writeMotorInt(const char *motorFile, int v);
 	void scanParams();
 	bool scanCommands();
 	bool scanStopCommands();
 	__always_inline void setCommandSupported(enum Command cmd);
 	__always_inline void setStopCommandSupported(enum StopCommand cmd);
+	__always_inline bool isCommandSupported(enum Command cmd);
+	__always_inline bool isStopCommandSupported(enum StopCommand cmd);
 	bool getCommandFromDriver(enum Command *cmd);
 	bool getStopCommandFromDriver(enum StopCommand *cmd);
 	bool getSpeedRegulationFromDriver(bool *value);
+	__always_inline enum Command getCommand();
+	__always_inline enum StopCommand getStopCommand();
+	__always_inline bool getSpeedRegulation();
+	bool setCommand(enum Command cmd);
+	bool setStopCommand(enum StopCommand cmd);
+	bool setDutyCycleSP(int value);
+	bool setSpeedSP(int value);
 	static const char portNames[][5];
 	static const char motorRootPath[];
 	static const char commandNames[][CMDSTR_MAXLEN];
@@ -117,7 +129,6 @@ private:
 	int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
 	bool speed_regulation;
-	int duty_cycle;
 	int duty_cycle_sp;
 	int speed_sp;
 	/* Bitmask of supported commands */
@@ -138,6 +149,31 @@ __always_inline void Motor::setCommandSupported(enum Command cmd)
 __always_inline void Motor::setStopCommandSupported(enum StopCommand cmd)
 {
 	stop_commands |= 0x1 << cmd;
+}
+
+__always_inline enum Motor::Command Motor::getCommand()
+{
+	return command;
+}
+
+__always_inline enum Motor::StopCommand Motor::getStopCommand()
+{
+	return stop_command;
+}
+
+__always_inline bool Motor::getSpeedRegulation()
+{
+	return speed_regulation;
+}
+
+__always_inline bool Motor::isCommandSupported(enum Command cmd)
+{
+	return (commands & (0x1 << cmd)) != 0;
+}
+
+__always_inline bool Motor::isStopCommandSupported(enum StopCommand cmd)
+{
+	return (stop_commands & (0x1 << cmd)) != 0;
 }
 
 #endif
