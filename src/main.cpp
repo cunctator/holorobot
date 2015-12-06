@@ -16,9 +16,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdio>
+#include <iostream>
+#include <motor.h>
 
 int main(int argc, char *argv[])
 {
+	Motor *motor = new Motor();
+	bool succ;
+	int value;
+
+	succ = motor->connect(Motor::PORT_B);
+	std::cout << "connect succeeded: " << succ << "\n";
+
+	std::cout << "Driver name is: " << motor->getDriverName() << "\n";
+	std::cout << "getPosition() succ:" << motor->getPosition(&value)
+		  << "\n";
+	std::cout << "position is: " << value << "\n";
+	std::cout << "psition_sp is: " << motor->getPositionSP() << "\n";
+	std::cout << "getSpeed() succ: " << motor->getSpeed(&value) << "\n";
+	std::cout << "speed is: " << value << "\n";
+	std::cout << "count_per_rot is: " << motor->getCountPerRot() << "\n";
+
 	return 0;
 }
