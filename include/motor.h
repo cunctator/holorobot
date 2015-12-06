@@ -127,6 +127,7 @@ public:
 	bool setPositionSP(int value);
 	bool setRampDownSP(int value);
 	bool setRampUpSP(int value);
+	bool setSpeedRegulation(bool value);
 	bool setSpeedSP(int value);
 	bool setTimeSP(int value);
 private:

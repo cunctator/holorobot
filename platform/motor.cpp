@@ -310,12 +310,12 @@ bool Motor::getStopCommandFromDriver(enum StopCommand *cmd)
 
 bool Motor::getSpeedRegulationFromDriver(bool *value)
 {
-	const size_t bufsize = SPEED_REGULATION_MAXLEN + 1;
+	const size_t bufsize = SPEED_REGULATION_MAXLEN;
 	char buf[bufsize];
 	unsigned int n;
 	size_t len;
 
-	n = readMotor("speed_regulation", buf, bufsize - 1);
+	n = readMotor("speed_regulation", buf, bufsize);
 	if (n < 1)
 		return false;
 
@@ -448,6 +448,28 @@ bool Motor::setRampUpSP(int value)
 	if (!retval)
 		return retval;
 	ramp_up_sp = value;
+	return retval;
+}
+
+bool Motor::setSpeedRegulation(bool value)
+{
+	char truebuf[] = SPEED_REGULATION_TRUE;
+	char falsebuf[] = SPEED_REGULATION_FALSE;
+	char *buf;
+	unsigned int len;
+	bool retval;
+
+	if (value) {
+		buf = truebuf;
+		len = sizeof(truebuf);
+	} else {
+		buf = falsebuf;
+		len = sizeof(falsebuf);
+	}
+	len--; /* We don't need to write the null character */
+	retval = writeMotor("speed_regulation", buf, len);
+	if (retval)
+		speed_regulation = value;
 	return retval;
 }
 
