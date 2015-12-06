@@ -104,6 +104,7 @@ public:
 	};
 	bool connect(enum MotorPort port);
 	__always_inline enum Command getCommand();
+	__always_inline int getCountPerRot();
 	__always_inline char *getDriverName();
 	__always_inline bool getPosition(int *value);
 	__always_inline int getPositionSP();
@@ -182,6 +183,11 @@ private:
 __always_inline void Motor::setCommandSupported(enum Command cmd)
 {
 	commands |= 0x1 << cmd;
+}
+
+__always_inline int Motor::getCountPerRot()
+{
+	return count_per_rot;
 }
 
 __always_inline void Motor::setStopCommandSupported(enum StopCommand cmd)
