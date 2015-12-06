@@ -69,6 +69,7 @@ bool Motor::connect(enum MotorPort port)
 	snprintf(motorPath, sizeof(motorPath), "%s/%s", motorRootPath,
 		 dent->d_name);
 	closedir(dir);
+	scanParams();
 	return true;
 failed:
 	closedir(dir);
