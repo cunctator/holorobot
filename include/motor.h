@@ -21,6 +21,7 @@
 
 #include "lego.h"
 #include "project.h"
+#include "fileop.h"
 extern "C" {
 #include <sys/types.h>
 #include <dirent.h>
@@ -139,6 +140,7 @@ private:
 			unsigned int bufsize);
 	bool writeMotorInt(const char *motorFile, int v);
 	void scanParams();
+	void setupFastPaths(char *motordir);
 	bool scanCommands();
 	bool scanStopCommands();
 	__always_inline void setStateActive(enum State s);
@@ -151,7 +153,14 @@ private:
 	static const char commandNames[][CMDSTR_MAXLEN];
 	static const char stopCommandNames[][STOPSTR_MAXLEN];
 	static const char stateNames[][STATESTR_MAXLEN];
-	char motorPath[MOTORPATHNAME_MAX];
+	char motorPath      	[MOTORPATHNAME_MAX];
+	char dutyCyclePath  	[MOTORPATHNAME_MAX];
+	char dutyCycleSPPath	[MOTORPATHNAME_MAX];
+	char positionPath	[MOTORPATHNAME_MAX];
+	char positionSPPath	[MOTORPATHNAME_MAX];
+	char speedPath		[MOTORPATHNAME_MAX];
+	char speedSPPath	[MOTORPATHNAME_MAX];
+	char statePath		[MOTORPATHNAME_MAX];
 	/* These are meant to be various parameters that tells us about
 	 * the motor, these are the ones that make sense to cache in the
 	 * Motor objects, other we read every time from sysfs because they
@@ -163,6 +172,7 @@ private:
 	int count_per_rot;
 	char driver_name[LEGO_NAME_SIZE + 1];
 	int duty_cycle_sp;
+	int position;
 	int position_sp;
 	int ramp_down_sp;
 	int ramp_up_sp;
@@ -207,7 +217,7 @@ __always_inline char *Motor::getDriverName()
 
 __always_inline bool Motor::getPosition(int *value)
 {
-	return readMotorInt("position", value);
+	return readfile_int(positionPath, value);
 }
 
 __always_inline int Motor::getPositionSP()
@@ -268,7 +278,7 @@ __always_inline bool Motor::isStateActive(enum State s)
 
 __always_inline bool Motor::getSpeed(int *value)
 {
-	return readMotorInt("speed", value);
+	return readfile_int(speedPath, value);
 }
 
 __always_inline void Motor::setStateActive(enum State s)

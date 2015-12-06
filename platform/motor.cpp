@@ -69,6 +69,7 @@ bool Motor::connect(enum MotorPort port)
 	snprintf(motorPath, sizeof(motorPath), "%s/%s", motorRootPath,
 		 dent->d_name);
 	closedir(dir);
+	setupFastPaths(dent->d_name);
 	scanParams();
 	return paramsOK;
 failed:
@@ -138,7 +139,7 @@ void Motor::scanParams()
 	if (n == 0)
 		return;
 
-	ok = readMotorInt("duty_cycle_sp", &duty_cycle_sp);
+	ok = readfile_int(dutyCycleSPPath, &duty_cycle_sp);
 	if (!ok)
 		return;
 
@@ -154,7 +155,7 @@ void Motor::scanParams()
 	if (!ok)
 		return;
 
-	ok = readMotorInt("speed_sp", &speed_sp);
+	ok = readfile_int(speedSPPath, &speed_sp);
 	if (!ok)
 		return;
 
@@ -180,6 +181,27 @@ void Motor::scanParams()
 	ok = getSpeedRegulationFromDriver(&speed_regulation);
 	if (!ok)
 		return;
+}
+
+/* The idea here is to generate these paths once, as soon as the motordir
+ * is known when we do connect(), this saves some CPU cycles when we don't
+ * need to do snprintf() every time we check the speed or write speed_sp */
+void Motor::setupFastPaths(char *motordir)
+{
+	snprintf(dutyCyclePath, sizeof(dutyCyclePath), "%s/%s/duty_cycle",
+		 motorRootPath, motordir);
+	snprintf(dutyCycleSPPath, sizeof(dutyCyclePath), "%s/%s/duty_cycle_sp",
+		 motorRootPath, motordir);
+	snprintf(positionPath, sizeof(positionPath), "%s/%s/position",
+		 motorRootPath, motordir);
+	snprintf(positionSPPath, sizeof(positionSPPath), "%s/%s/position_sp",
+		 motorRootPath, motordir);
+	snprintf(speedPath, sizeof(speedPath), "%s/%s/speed", motorRootPath,
+		 motordir);
+	snprintf(speedSPPath, sizeof(speedSPPath), "%s/%s/speed_sp",
+		 motorRootPath, motordir);
+	snprintf(statePath, sizeof(statePath), "%s/%s/state",
+		 motorRootPath, motordir);
 }
 
 bool Motor::scanCommands()
@@ -349,7 +371,7 @@ void Motor::readState()
 	 * will be added by setCommandsSupported() below */
 	state = 0;
 
-	n = readMotor("state", buf, bufsize - 1);
+	n = readfile(statePath, buf, bufsize - 1);
 	if (n < 2)
 		return;
 	/* Make sure our string is null terminated */
@@ -409,7 +431,7 @@ bool Motor::setStopCommand(enum StopCommand cmd)
 bool Motor::setDutyCycleSP(int value)
 {
 	bool retval;
-	retval = writeMotorInt("duty_cycle_sp", value);
+	retval = __writefile_int(dutyCycleSPPath, value);
 	if (!retval)
 		return retval;
 	duty_cycle_sp = value;
@@ -418,13 +440,13 @@ bool Motor::setDutyCycleSP(int value)
 
 bool Motor::setPosition(int value)
 {
-	return writeMotorInt("position", value);
+	return writefile_int(positionPath, value);
 }
 
 bool Motor::setPositionSP(int value)
 {
 	bool retval;
-	retval = writeMotorInt("position_sp", value);
+	retval = __writefile_int(positionSPPath, value);
 	if (!retval)
 		return retval;
 	position_sp = value;
@@ -476,7 +498,7 @@ bool Motor::setSpeedRegulation(bool value)
 bool Motor::setSpeedSP(int value)
 {
 	bool retval;
-	retval = writeMotorInt("speed_sp", value);
+	retval = __writefile_int(speedSPPath, value);
 	if (!retval)
 		return retval;
 	speed_sp = value;
