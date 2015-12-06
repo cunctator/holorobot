@@ -70,7 +70,7 @@ bool Motor::connect(enum MotorPort port)
 		 dent->d_name);
 	closedir(dir);
 	scanParams();
-	return true;
+	return paramsOK;
 failed:
 	closedir(dir);
 	return false;
@@ -170,9 +170,8 @@ void Motor::scanParams()
 	if (!ok)
 		return;
 
-	ok = getCommandFromDriver(&command);
-	if (!ok)
-		return;
+	/* Not necearrily true but command is not readable from the driver */
+	last_command = CMD_STOP;
 
 	ok = getStopCommandFromDriver(&stop_command);
 	if (!ok)
@@ -272,41 +271,6 @@ bool Motor::scanStopCommands()
 	 * most likely failed somewhere above */
 	if (stop_commands != 0)
 		retval = true;
-	return retval;
-}
-
-bool Motor::getCommandFromDriver(enum Command *cmd)
-{
-	bool retval = false;
-	const size_t bufsize = CMDSTR_MAXLEN + 2;
-	char buf[bufsize];
-	unsigned int n;
-	int i;
-	const char *cmd_cand;
-	size_t len;
-
-	n = readMotor("command", buf, bufsize - 1);
-	if (n < 1)
-		return retval;
-
-	buf[n] = '\0';
-	for (i = 0; i < CMDS_NR; i++) {
-		cmd_cand = commandNames[i];
-		len = strlen(cmd_cand);
-		if (len > n)
-			continue;
-		/* We can do this, because if you look at the commands in
-		 * motor.h, you see that while commands have common substrings,
-		 * no command is a substring of another command. If commands
-		 * are added so that this is no longer true, this would have
-		 * to be modified to check for the longest matching string or
-		 * something */
-		if (!strncmp(cmd_cand, buf, len)) {
-			retval = true;
-			*cmd = (enum Command) i;
-			break;
-		}
-	}
 	return retval;
 }
 
@@ -421,7 +385,7 @@ bool Motor::setCommand(enum Command cmd)
 	retval = writeMotor("command", cmdstr, len);
 	if (!retval)
 		return retval;
-	command = cmd;
+	last_command = cmd;
 	return retval;
 }
 

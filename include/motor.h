@@ -103,7 +103,7 @@ public:
 		STATES_NR
 	};
 	bool connect(enum MotorPort port);
-	__always_inline enum Command getCommand();
+	__always_inline enum Command getLastCommand();
 	__always_inline int getCountPerRot();
 	__always_inline char *getDriverName();
 	__always_inline bool getPosition(int *value);
@@ -143,7 +143,6 @@ private:
 	__always_inline void setStateActive(enum State s);
 	__always_inline void setCommandSupported(enum Command cmd);
 	__always_inline void setStopCommandSupported(enum StopCommand cmd);
-	bool getCommandFromDriver(enum Command *cmd);
 	bool getStopCommandFromDriver(enum StopCommand *cmd);
 	bool getSpeedRegulationFromDriver(bool *value);
 	static const char portNames[][5];
@@ -157,7 +156,7 @@ private:
 	 * Motor objects, other we read every time from sysfs because they
 	 * are volatile and don't make sense to cache in the object */
 	enum MotorPort port;
-	enum Command command;
+	enum Command last_command;
 	/* Bitmask of supported commands */
 	uint32_t commands;
 	int count_per_rot;
@@ -195,9 +194,9 @@ __always_inline void Motor::setStopCommandSupported(enum StopCommand cmd)
 	stop_commands |= 0x1 << cmd;
 }
 
-__always_inline enum Motor::Command Motor::getCommand()
+__always_inline enum Motor::Command Motor::getLastCommand()
 {
-	return command;
+	return last_command;
 }
 
 __always_inline char *Motor::getDriverName()
