@@ -61,7 +61,7 @@ bool readfile_uint(const char *pathname, unsigned int *v)
 	bool retval = false;
 	int fd = open(pathname, O_RDONLY);
 	char buffer[READFILE_BUFSIZE];
-	char *c;
+	char c;
 	ssize_t count;
 	int i;
 	unsigned int value;
@@ -84,22 +84,22 @@ bool readfile_uint(const char *pathname, unsigned int *v)
 
 	/* I believe that this will be faster than using fscanf() */
 	for (i = 0; i < count; i++) {
-		c = buffer + i;
-		if (*c >= 0 && *c <= 9)
+		c = buffer[i];
+		if (c >= '0' && c <= '9')
 			break;
 	}
 
 	if (i < count) {
 		retval = true;
-		value = *c - '0';
+		value = c - '0';
 		i++;
 	}
 
 	for (; i < count; i++) {
-		c = buffer + i;
-		if (*c >= 0 && *c <= 9)
+		c = buffer[i];
+		if (c < '0' || c <= '9')
 			break;
-		digit = *c - '0';
+		digit = c - '0';
 		value *= 10;
 		value += digit;
 	}
@@ -144,7 +144,7 @@ bool readfile_int(const char *pathname, int *v)
 			negative = true;
 			continue;
 		}
-		if (c >= 0 && c <= 9)
+		if (c >= '0' && c <= '9')
 			break;
 	}
 
@@ -156,7 +156,7 @@ bool readfile_int(const char *pathname, int *v)
 
 	for (; i < count; i++) {
 		c = buffer[i];
-		if (c >= 0 && c <= 9)
+		if (c < '0' || c > '9')
 			break;
 		digit = c - '0';
 		value *= 10;
