@@ -20,7 +20,12 @@
 
 unsigned int readfile(const char *pathname, char *buffer, unsigned int size)
 {
-	return __readfile(pathname, buffer, size);
+	return __readbinfile(pathname, buffer, size * sizeof(char));
+}
+
+unsigned int readbinfile(const char *pathname, void *buffer, unsigned int size)
+{
+	return __readbinfile(pathname, buffer, size);
 }
 
 bool readfile_int(const char *pathname, int *v)

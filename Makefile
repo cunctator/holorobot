@@ -35,6 +35,7 @@ CSRCS =		platform/fileop.c
 
 # define the C++ source files
 CXXSRCS =	platform/motor.cpp \
+		platform/sensor.cpp \
 		src/main.cpp
 
 ALLSRCS  = $(CSRCS)

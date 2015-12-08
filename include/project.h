@@ -20,5 +20,7 @@
 #define PROJECT_H
 
 #define _POSIX_C_SOURCE 200809L
+#define HMAX(A, B) (A > B ? A : B)
+#define HMIN(A, B) (A < B ? A : B)
 
 #endif /* PROJECT_H */

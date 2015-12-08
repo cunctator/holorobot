@@ -22,10 +22,12 @@
 #ifdef __cplusplus
 
 #include <cstdbool>
+#include <cstdint>
 extern "C" {
 
 #else	
 #include <stdbool.h>
+#include <stdint.h>
 #endif
 
 #include <sys/types.h>
@@ -37,8 +39,10 @@ extern "C" {
 #include <err.h>
 
 static __always_inline
-unsigned int __readfile(const char *pathname, char *buffer, unsigned int size)
+unsigned int __readbinfile(const char *pathname, void *buffer,
+			   unsigned int size)
 {
+	uint8_t *buf = (uint8_t*) buffer;
 	ssize_t count;
 	size_t n = 0;
 	int fd = open(pathname, O_RDONLY);
@@ -49,14 +53,14 @@ unsigned int __readfile(const char *pathname, char *buffer, unsigned int size)
 
 	do {
 		do {
-			count = read(fd, buffer, size);
+			count = read(fd, buf, size);
 			if (count >= 0 || errno != EINTR)
 				break;
 		} while(true);
 
 		if (count > 0) {
 			n += count;
-			buffer += count;
+			buf += count;
 			size -= count;
 		}
 		if (count <= 0 || size == 0) {
@@ -228,6 +232,8 @@ bool __writefile_int(const char *pathname, int value)
 }
 
 unsigned int readfile(const char *pathname, char *buffer, unsigned int size);
+
+unsigned int readbinfile(const char *pathname, void *buffer, unsigned int size);
 
 bool readfile_int(const char *pathname, int *v);
 
