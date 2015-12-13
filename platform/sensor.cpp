@@ -76,7 +76,7 @@ bool Sensor::connect(const char *portname, const char *drivername)
 			memset(buffer, 0, bufferSize);
 			n = readfile(path, buffer, bufferSize);
 			if (n >= driverlen &&
-			    strncmp(buffer, drivername, driverlen))
+			    !strncmp(buffer, drivername, driverlen))
 				break;
 			else
 				goto failed;
