@@ -175,7 +175,8 @@ void Sensor::scanParams()
 	n = readSensor("port_name", port_name, LEGO_NAME_SIZE);
 	if (n == 0)
 		return;
-	port_name[n] = '\0';	
+	port_name[n] = '\0';
+	paramsOK = true;
 }
 
 bool Sensor::writeSensor(const char *sensorFile, const char *buf,
