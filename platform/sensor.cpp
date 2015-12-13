@@ -116,7 +116,7 @@ unsigned int Sensor::getModes(char *modes, unsigned int size)
 
 bool Sensor::getNumValues(int *num)
 {
-	return readSensorInt("num_values", &num);
+	return readSensorInt("num_values", num);
 }
 
 bool Sensor::setMode(const char *mode)
