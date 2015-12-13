@@ -114,6 +114,16 @@ unsigned int Sensor::getModes(char *modes, unsigned int size)
 	return readSensor("modes", modes, size);
 }
 
+int Sensor::getPoll_ms()
+{
+	return poll_ms;
+}
+
+bool Sensor::setPoll_ms(int value)
+{
+	return writeSensorInt("poll_ms", value);
+}
+
 bool Sensor::getNumValues(int *num)
 {
 	return readSensorInt("num_values", num);
@@ -187,6 +197,15 @@ bool Sensor::writeSensor(const char *sensorFile, const char *buf,
 
 	snprintf(path, pathSize, "%s/%s", sensorPath, sensorFile);
 	return writefile(path, buf, size);
+}
+
+bool Sensor::writeSensorInt(const char *sensorFile, int value)
+{
+	const size_t pathSize = SPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", sensorPath, sensorFile);
+	return writefile_int(path, value);
 }
 
 const char Sensor::sensorRootPath[] = SENSOR_ROOTPATH;

@@ -90,6 +90,7 @@ protected:
 	bool setMode(const char *mode);
 	bool writeSensor(const char *sensorFile, const char *buf,
 			 unsigned int size);
+	bool writeSensorInt(const char *sensorFile, int value);
 	/* This one tells if the params make sense, e.g. is the result of
 	 * sucessfully reading the from a /syc/class/lego-sensor/sensorX/
 	 * directory
