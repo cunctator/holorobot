@@ -43,7 +43,7 @@ bool IrReceiver::readFromDrivers()
 	unsigned int n;
 	n = __readSensorBin("bin_data", channelData, sizeof(channelData));
 
-	if (n / sizeof(int8_t) != numValues)
+	if (n / sizeof(int8_t) < numValues)
 		return false;
 	return true;
 }
