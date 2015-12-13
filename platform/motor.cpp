@@ -40,7 +40,8 @@ Motor::~Motor()
 bool Motor::connect(enum MotorPort port)
 {
 	DIR *dir = opendir(motorRootPath);
-	struct dirent *dent;
+	struct dirent dent;
+	struct dirent *dptr;
 	unsigned long n;
 	const size_t pathSize = MOTORPATHNAME_MAX;
 	char path[pathSize];
@@ -51,14 +52,13 @@ bool Motor::connect(enum MotorPort port)
 		return false;
 
 	do {
-		dent = readdir(dir);
-		if (dent == nullptr)
+		if (readdir_r(dir, &dent, &dptr) != 0 || dptr == 0)
 			goto failed;
 		/* We disregard all directories that start with a . */
-		if (dent->d_name[0] == '.')
+		if (dent.d_name[0] == '.')
 			continue;
 		snprintf(path, pathSize, "%s/%s/port_name", motorRootPath,
-			 dent->d_name);
+			 dent.d_name);
 		memset(buffer, 0, bufferSize);
 		n = readfile(path, buffer, bufferSize);
 		/* We only care about the first 4 chars, if they are contain
@@ -67,9 +67,9 @@ bool Motor::connect(enum MotorPort port)
 			break;
 	} while(true);
 	snprintf(motorPath, sizeof(motorPath), "%s/%s", motorRootPath,
-		 dent->d_name);
+		 dent.d_name);
 	closedir(dir);
-	setupFastPaths(dent->d_name);
+	setupFastPaths(dent.d_name);
 	scanParams();
 	return paramsOK;
 failed:
