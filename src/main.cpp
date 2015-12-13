@@ -16,6 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdint>
 #include <iostream>
 #include <irreceiver.h>
 #include <motor.h>
@@ -23,6 +24,24 @@
 extern "C" {
 #include <time.h>
 #include <sys/time.h>
+}
+
+static __always_inline void swapPointers(IrValues **p1, IrValues **p2)
+{
+	IrValues *tmp;
+
+	tmp = *p1;
+	*p1 = *p2;
+	*p2 = tmp;
+}
+
+static __always_inline void printSensor(IrValues &data)
+{
+	std::cout << "\t" << (int) data.ch[0] << "\t" << (int) data.ch[1]
+		  << "\t" << (int) data.ch[2] << "\t" << (int) data.ch[3]
+		  << "\t" << (int) data.ch[4] << "\t" << (int) data.ch[5]
+		  << "\t" << (int) data.ch[6] << "\t" << (int) data.ch[7]
+		  << "\n";
 }
 
 int main(int argc, char *argv[])
@@ -38,6 +57,13 @@ int main(int argc, char *argv[])
 	const unsigned int n = 10000;
 	int vector[n];
 	double duration;
+	IrValues data1;
+	IrValues data2;
+
+	IrValues *olddata = &data1;
+	IrValues *newdata = &data2;
+
+	struct timespec tsdelay = { 0, 25000000 };
 
 	succ = motor->connect(Motor::PORT_B);
 	std::cout << "connect succeeded: " << succ << "\n";
@@ -98,6 +124,23 @@ skip_motortest:
 	if (!succ)
 		goto skip_sensortest;
 
+	succ = receiver.setPoll_ms(25);
+	std::cout << "setPoll_ms(25) returned: " << succ << "\n";
+	succ = receiver.setMode(IrReceiver::MODE_ALL_CH);
+	std::cout << "setMode() returned: " << succ << "\n";
+
+	receiver.getAllValues(newdata);
+	nanosleep(&tsdelay, NULL);
+
+	while(true) {
+		swapPointers(&olddata, &newdata);
+		receiver.readFromDrivers();
+		receiver.getAllValues(newdata);
+		if (memcmp(olddata, newdata, 8 * sizeof(int8_t))) {
+			printSensor(*newdata);
+		}
+		nanosleep(&tsdelay, NULL);
+	}
 skip_sensortest:
 	delete motor;
 	return 0;

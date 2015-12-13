@@ -36,6 +36,11 @@
 
 #define IRRCV_EXPECTED_FORMAT    (Sensor::FORMAT_S8)
 
+class IrValues {
+public:
+	int8_t ch[IRRCV_NUM_VALUES_MAX];
+};
+
 class IrReceiver : public Sensor
 {
 public:
@@ -49,7 +54,7 @@ public:
 	~IrReceiver();
 	bool connect(const char *portname);
 	enum Mode getMode();
-	__always_inline void getAllValues(int8_t values[8]);
+	__always_inline void getAllValues(IrValues *values);
 	__always_inline int8_t getValue();
 	__always_inline int8_t getValue(unsigned int channelAB);
 	int8_t getValueA(unsigned int channel);
@@ -66,9 +71,9 @@ private:
 	enum Mode mode;
 };
 
-__always_inline void IrReceiver::getAllValues(int8_t values[8])
+__always_inline void IrReceiver::getAllValues(IrValues *values)
 {
-	memcpy(&values[0], &channelData[0], sizeof(channelData));
+	memcpy(values->ch, &channelData[0], sizeof(channelData));
 }
 
 __always_inline int8_t IrReceiver::getValue()
