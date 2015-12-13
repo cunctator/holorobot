@@ -31,10 +31,12 @@ INCLUDES = -I./include
 #   option, something like (this will link in libmylib.so and libm.so:
 LIBS = -lm -lstdc++
 
-CSRCS =		platform/fileop.c
+CSRCS =		platform/fileop.c \
+		lib/strlib.c
 
 # define the C++ source files
-CXXSRCS =	platform/motor.cpp \
+CXXSRCS =	platform/irreceiver.cpp \
+		platform/motor.cpp \
 		platform/sensor.cpp \
 		src/main.cpp
 

@@ -55,6 +55,7 @@ class Sensor
 public:
 	Sensor();
 	virtual ~Sensor();
+	bool getNumValues(int *num);
 	int getPoll_ms();
 	bool setPoll_ms(int value);
 protected:
@@ -70,10 +71,12 @@ protected:
 		FORMAT_NONE,
 		FORMATS_NR
 	};
-	bool connect(char *portname, char *drivername);
-	virtual bool postConnect();
+	bool checkSensor(const char *sensorFile, const char *str);
+	bool connect(const char *portname, const char *drivername);
+	virtual bool postConnect() = 0;
 	enum BinFormat getBinFormat();
-	bool getMode(char *mode, unsigned int modelen);
+	unsigned int getMode(char *mode, unsigned int size);
+	unsigned int getModes(char *modes, unsigned int size);
 	unsigned int readSensor(const char *sensorFile, char *buf,
 				unsigned int bufsize);
 	__always_inline unsigned int __readSensorBin(const char
@@ -84,7 +87,9 @@ protected:
 				   unsigned int bufsize);
 	bool readSensorInt(const char *sensorFile, int *v);
 	void scanParams();
-	bool setMode(char *mode);
+	bool setMode(const char *mode);
+	bool writeSensor(const char *sensorFile, const char *buf,
+			 unsigned int size);
 	/* This one tells if the params make sense, e.g. is the result of
 	 * sucessfully reading the from a /syc/class/lego-sensor/sensorX/
 	 * directory
@@ -111,7 +116,7 @@ __always_inline unsigned int Sensor::__readSensorBin(const char
 	char path[pathSize];
 
 	snprintf(path, pathSize, "%s/%s", sensorPath, sensorFile);
-	return readbinfile(path, buf, bufsize);
+	return __readbinfile(path, buf, bufsize);
 }
 
 #endif /* SENSOR_H */

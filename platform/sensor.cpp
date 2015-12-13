@@ -18,6 +18,7 @@
 
 #include <sensor.h>
 #include <fileop.h>
+#include <strlib.h>
 
 extern "C" {
 #include <alloca.h>
@@ -37,7 +38,7 @@ Sensor::Sensor() :
 Sensor::~Sensor()
 {}
 
-bool Sensor::connect(char *portname, char *drivername)
+bool Sensor::connect(const char *portname, const char *drivername)
 {
 	DIR *dir;
 	struct dirent *dent;
@@ -93,21 +94,35 @@ failed:
 
 enum Sensor::BinFormat Sensor::getBinFormat()
 {
-	int i;
 	const unsigned int bufsize = FMTSTR_MAXLEN;
 	unsigned int n;
-	unsigned int fn;
 	char buf[bufsize];
-	
+	int fmtint;
+
 	n = readSensor("bin_data_format", buf, bufsize);
-	for (i = 0; i < FORMAT_NONE; i++) {
-		fn = strlen(formatName[i]);
-		if (fn > n)
-			continue;
-		if (!strncmp(buf, formatName[i], fn))
-			break;
-	}
-	return (enum BinFormat) i;
+	fmtint = find_str_in_array(buf, n, formatName, FORMAT_NONE);
+	return (enum BinFormat) fmtint;
+}
+
+unsigned int Sensor::getMode(char *mode, unsigned int size)
+{
+	return readSensor("mode", mode, size);
+}
+
+unsigned int Sensor::getModes(char *modes, unsigned int size)
+{
+	return readSensor("modes", modes, size);
+}
+
+bool Sensor::getNumValues(int *num)
+{
+	return readSensorInt("num_values", &num_values);
+}
+
+bool Sensor::setMode(const char *mode)
+{
+	unsigned int modesize = strlen(mode);
+	return writeSensor("mode", mode, modesize);
 }
 
 unsigned int Sensor::readSensor(const char *sensorFile, char *buf,
@@ -163,9 +178,14 @@ void Sensor::scanParams()
 	port_name[n] = '\0';	
 }
 
-bool Sensor::postConnect()
+bool Sensor::writeSensor(const char *sensorFile, const char *buf,
+			 unsigned int size)
 {
-	return true;
+	const size_t pathSize = SPATHNAME_MAX;
+	char path[pathSize];
+
+	snprintf(path, pathSize, "%s/%s", sensorPath, sensorFile);
+	return writefile(path, buf, size);
 }
 
 const char Sensor::sensorRootPath[] = SENSOR_ROOTPATH;

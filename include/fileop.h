@@ -23,13 +23,16 @@
 
 #include <cstdbool>
 #include <cstdint>
+#include <cstring>
 extern "C" {
 
 #else	
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #endif
 
+#include <alloca.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -76,28 +79,14 @@ static __always_inline
 bool __readfile_uint(const char *pathname, unsigned int *v)
 {
 	bool retval = false;
-	int fd = open(pathname, O_RDONLY);
 	char buffer[READFILE_BUFSIZE];
 	char c;
-	ssize_t count;
-	int i;
+	unsigned int count;
+	unsigned int i;
 	unsigned int value;
 	unsigned int digit;
 
-	if (fd < 0) {
-		warn("Could not open file %s", pathname);
-		return retval;
-	}
-
-	/* This function must be fast so we cannot afford that many checks.
-	 * We just hope that the number will be in the first 32 characters
-	 * and that read will return either a full buffer or until the eof */
-	do {
-		count = read(fd, buffer, READFILE_BUFSIZE);
-		if (count >= 0 || errno != EINTR)
-			break;
-	} while(true);
-	close(fd);
+	count = __readbinfile(pathname, buffer, sizeof(buffer));
 
 	/* I believe that this will be faster than using fscanf() */
 	for (i = 0; i < count; i++) {
@@ -131,29 +120,15 @@ static __always_inline
 bool __readfile_int(const char *pathname, int *v)
 {
 	bool retval = false;
-	int fd = open(pathname, O_RDONLY);
 	char buffer[READFILE_BUFSIZE];
 	char c;
-	ssize_t count;
-	int i;
+	unsigned int count;
+	unsigned int i;
 	int value;
 	int digit;
 	bool negative = false;
 
-	if (fd < 0) {
-		warn("Could not open file %s", pathname);
-		return retval;
-	}
-
-	/* This function must be fast so we cannot afford that many checks.
-	 * We just hope that the number will be in the first 32 characters
-	 * and that read will return either a full buffer or until the eof */
-	do {
-		count = read(fd, buffer, READFILE_BUFSIZE);
-		if (count >= 0 || errno != EINTR)
-			break;
-	} while(true);
-	close(fd);
+	count = __readbinfile(pathname, buffer, sizeof(buffer));
 
 	/* I believe that this will be faster than using fscanf() */
 	for (i = 0; i < count; i++) {
@@ -231,6 +206,20 @@ bool __writefile_int(const char *pathname, int value)
 	return __writefile(pathname, buf, n);
 }
 
+static __always_inline
+bool __checkfile_contains(const char *pathname, const char *str)
+{
+	unsigned int n = strlen(str);
+	unsigned int bufsize = n * sizeof(char);
+	char *buf = (char*) alloca(bufsize);
+	unsigned int nr;
+
+	nr = __readbinfile(pathname, buf, bufsize);
+	if (nr < n)
+		return false;
+	return strncmp(buf, str, n) == 0;
+}
+
 unsigned int readfile(const char *pathname, char *buffer, unsigned int size);
 
 unsigned int readbinfile(const char *pathname, void *buffer, unsigned int size);
@@ -242,6 +231,8 @@ bool readfile_uint(const char *pathname, unsigned int *v);
 bool writefile(const char *pathname, const char *buffer, unsigned int size);
 
 bool writefile_int(const char *pathname, int value);
+
+bool checkfile_contains(const char *pathname, const char *str);
 
 #ifdef __cplusplus
 }

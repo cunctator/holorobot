@@ -47,3 +47,8 @@ bool writefile_int(const char *pathname, int value)
 {
 	return __writefile_int(pathname, value);
 }
+
+bool checkfile_contains(const char *pathname, const char *str)
+{
+	return __checkfile_contains(pathname, str);
+}
