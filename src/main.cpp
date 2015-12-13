@@ -17,6 +17,7 @@
  */
 
 #include <iostream>
+#include <irreceiver.h>
 #include <motor.h>
 
 extern "C" {
@@ -40,6 +41,8 @@ int main(int argc, char *argv[])
 
 	succ = motor->connect(Motor::PORT_B);
 	std::cout << "connect succeeded: " << succ << "\n";
+	if (!succ)
+		goto skip_motortest;
 
 	std::cout << "Driver name is: " << motor->getDriverName() << "\n";
 	std::cout << "getPosition() succ:" << motor->getPosition(&value)
@@ -85,5 +88,17 @@ int main(int argc, char *argv[])
 
 	std::cout << "duration of speed measurement was " << duration
 		  << "seconds" << "\n";
+
+skip_motortest:
+	std::cout << "Starting sensor tests!\n";
+	IrReceiver receiver;
+
+	succ = receiver.connect("in1:i2c1");
+	std::cout << "connect succeeded: " << succ << "\n";
+	if (!succ)
+		goto skip_sensortest;
+
+skip_sensortest:
+	delete motor;
 	return 0;
 }
